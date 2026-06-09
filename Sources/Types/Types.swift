@@ -1,4 +1,3 @@
-@_spi(Generated) import OpenAPIRuntime
 import Foundation
 import BCS
 import BigInt
@@ -85,7 +84,7 @@ public struct WaitForTransactionOptions: Sendable {
 }
 
 
-public typealias MoveStructValue = OpenAPIRuntime.OpenAPIObjectContainer
+public typealias MoveStructValue = OpenAPIObjectContainer
 public typealias MoveStructId = String
 public typealias MoveFunctionId = MoveStructId
 public typealias EntryFunctionId = String
@@ -790,7 +789,7 @@ public enum WriteSetChange: Codable, Hashable, Sendable {
 
 
 public struct Event: Codable, Hashable, Sendable {
-    public typealias Data = OpenAPIRuntime.OpenAPIValueContainer
+    public typealias Data = OpenAPIValueContainer
     
     public var guid: EventGuid
     public var sequenceNumber: String
@@ -861,7 +860,7 @@ public struct DeleteTableItem: Codable, Hashable, Sendable {
 
 /// Deleted table data
 public struct DeletedTableData: Codable, Hashable, Sendable {
-    public typealias Key = OpenAPIRuntime.OpenAPIValueContainer
+    public typealias Key = OpenAPIValueContainer
     
     public var key: Key
     
@@ -922,8 +921,8 @@ public struct WriteTableItem: Codable, Hashable, Sendable {
 }
 
 public struct DecodedTableData: Codable, Hashable, Sendable {
-    public typealias Key = OpenAPIRuntime.OpenAPIValueContainer
-    public typealias Value = OpenAPIRuntime.OpenAPIValueContainer
+    public typealias Key = OpenAPIValueContainer
+    public typealias Value = OpenAPIValueContainer
     
     /// Key of table in JSON
     public var key: Key
@@ -1079,7 +1078,7 @@ public struct MoveStruct: Codable, Hashable, Sendable {
 
 /// An enum of the possible transaction payloads
 public enum TransactionPayloadResponse: Codable, Hashable, Sendable {
-    public typealias DeprecatedModuleBundlePayload = OpenAPIRuntime.OpenAPIObjectContainer
+    public typealias DeprecatedModuleBundlePayload = OpenAPIObjectContainer
     
     case entryFunctionPayload(EntryFunction)
     
@@ -1135,7 +1134,7 @@ extension TransactionPayloadResponse {
 
 /// Payload which runs a single entry function
 public struct EntryFunction: Codable, Hashable, Sendable {
-    public typealias Argument = OpenAPIRuntime.OpenAPIValueContainer
+    public typealias Argument = OpenAPIValueContainer
     public var function: EntryFunctionId
     /// Type arguments of the function
     public var typeArguments: [String]
@@ -1152,7 +1151,7 @@ public struct EntryFunction: Codable, Hashable, Sendable {
 
 /// Payload which runs a script that can run multiple functions
 public struct Script: Codable, Hashable, Sendable {
-    public typealias Argument = OpenAPIRuntime.OpenAPIValueContainer
+    public typealias Argument = OpenAPIValueContainer
     public var code: MoveScriptBytecode
     /// Type arguments of the function
     public var typeArguments: [String]
@@ -1572,7 +1571,6 @@ public struct TableItemRequest: Sendable {
         ]
     }
 }
-
 
 
 

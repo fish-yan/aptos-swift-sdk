@@ -4,7 +4,7 @@ import Core
 
 final class FaucetTest: XCTestCase {
     func testFaucet() async throws {
-        let aptos = Aptos(aptosConfig: .localnet)
+        let aptos = Aptos(aptosConfig: .devnet)
         let testAccount = Account.generate()
         try await aptos.faucet.fundAccount(
             accountAddress: testAccount.accountAddress,

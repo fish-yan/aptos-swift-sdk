@@ -166,7 +166,7 @@ private struct AccountApiOperation {
             self.ledgerVersion = ledgerVersion
             self.page = page
             
-            var query: [String: Encodable] = [:]
+            var query: Parameter = [:]
             if let version = ledgerVersion {
                 query["ledger_version"] = version
             }
@@ -197,12 +197,12 @@ private struct AccountApiOperation {
             }
         }
         
-        var query: [String : Encodable]? {
+        var query: Parameter? {
             switch self {
             case .info(_, let ledgerVersion),
                     .resource(_, _, let ledgerVersion),
                     .module(_, _, let ledgerVersion):
-                var query: [String: Encodable] = [:]
+                var query: Parameter = [:]
                 if let version = ledgerVersion {
                     query["ledger_version"] = version
                 }

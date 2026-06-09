@@ -1,9 +1,7 @@
 
 import Foundation
-import HTTPTypes
 import Types
 import Clients
-import OpenAPIRuntime
 import Utils
 
 package struct ClientConfigMiddleware: ClientMiddleware {
@@ -26,16 +24,17 @@ package struct ClientConfigMiddleware: ClientMiddleware {
             self.faucetConfig = faucetConfig
         }
     
-   package func intercept(
-        _ request: HTTPTypes.HTTPRequest,
-         body: OpenAPIRuntime.HTTPBody?,
+    package func intercept(
+        _ request: HTTPRequest,
+        body: HTTPBody?,
         baseURL: URL,
         operationID: String,
         next: @Sendable (
-            HTTPTypes.HTTPRequest,
-            OpenAPIRuntime.HTTPBody?, URL
-        ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?)
-    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
+            HTTPRequest,
+            HTTPBody?,
+            URL
+        ) async throws -> (HTTPResponse, HTTPBody?)
+    ) async throws -> (HTTPResponse, HTTPBody?) {
         var request = request
         
         func addHeaders(key: String, value: String) {
@@ -74,15 +73,16 @@ package struct FaucetMiddleware: ClientMiddleware {
     package init() {}
 
     package func intercept(
-        _ request: HTTPTypes.HTTPRequest,
-         body: OpenAPIRuntime.HTTPBody?,
+        _ request: HTTPRequest,
+        body: HTTPBody?,
         baseURL: URL,
         operationID: String,
         next: @Sendable (
-            HTTPTypes.HTTPRequest,
-            OpenAPIRuntime.HTTPBody?, URL
-        ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?)
-    ) async throws -> (HTTPTypes.HTTPResponse, OpenAPIRuntime.HTTPBody?) {
+            HTTPRequest,
+            HTTPBody?,
+            URL
+        ) async throws -> (HTTPResponse, HTTPBody?)
+    ) async throws -> (HTTPResponse, HTTPBody?) {
         var request = request
         
         request.headerFields.removeAll(where: { $0.name == .authorization })

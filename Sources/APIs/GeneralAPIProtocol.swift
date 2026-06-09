@@ -29,7 +29,7 @@ extension GerneralAPIProtocol {
     }
     
     public func getTableItem(handle: String, data: TableItemRequest, withLedgerVersion: LedgerVersionArg? = nil) async throws -> Data {
-        var query = [String: AnyNumber]()
+        var query: Parameter = [:]
         if let version = withLedgerVersion?.ledgerVersion {
             query["ledger_version"] = version
         }
@@ -39,7 +39,7 @@ extension GerneralAPIProtocol {
             return try input.serializer(with: client.converter)
         }, deserializer: { (resp, httpBody) in
             if resp.status.kind == .successful {
-                return try await Data(collecting: httpBody ?? [], upTo: .max)
+                return httpBody?.data ?? Data()
             } else {
                 throw try await client.convertBodyToAptosError(httpBody, resp: resp, request: postRequest)
             }

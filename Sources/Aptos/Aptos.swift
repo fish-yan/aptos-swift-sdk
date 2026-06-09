@@ -1,7 +1,5 @@
 import Foundation
 import Utils
-import OpenAPIRuntime
-import HTTPTypes
 import Types
 
 public struct Aptos: Sendable {

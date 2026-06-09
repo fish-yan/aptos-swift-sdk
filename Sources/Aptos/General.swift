@@ -2,7 +2,6 @@
 
 import Foundation
 import Clients
-import OpenAPIRuntime
 import APIs
 import Transactions
 import Utils
@@ -55,12 +54,12 @@ extension Aptos.General {
         try viewFunctionPayload.serialize(serializer: serializer)
         let bytes = serializer.toUInt8Array()
 
-        var query = [String: AnyNumber]()
+        var query: Parameter = [:]
         if let version = options?.ledgerVersion {
             query["ledger_version"] = version
         }
 
-        let container: OpenAPIRuntime.OpenAPIArrayContainer = try await client.post(
+        let container: OpenAPIArrayContainer = try await client.post(
             path: "/view", 
             query: query, 
             bobdy: .binary(.init(bytes)), 

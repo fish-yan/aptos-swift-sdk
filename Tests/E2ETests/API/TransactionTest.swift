@@ -11,7 +11,7 @@ import Utils
 
 final class TransactionTest: XCTestCase {
     // the aptos env default is devnet & fullnode
-    let aptos: Aptos = Aptos(aptosConfig: .init(network: .init(apiEnv: .local)))
+    let aptos: Aptos = Aptos(aptosConfig: .init(network: .init(apiEnv: .devnet)))
     
     func testEstimateTransactionGas() async throws {
         let data = try await aptos.transaction.getGasPriceEstimation()

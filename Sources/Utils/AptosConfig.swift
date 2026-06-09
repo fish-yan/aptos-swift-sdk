@@ -1,6 +1,5 @@
 import Foundation
-import OpenAPIRuntime
-import OpenAPIURLSession
+import Clients
 
 public typealias ClientHeadersType = [String:String]
 

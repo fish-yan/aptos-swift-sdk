@@ -189,7 +189,7 @@ private struct TransactionApiOperation {
         init(page: Pagination? = nil) {
             self.page = page
             
-            var query: [String: Encodable] = [:]
+            var query: Parameter = [:]
             if let page = page {
                 query["start"] = page.offset
                 query["limit"] = page.limit
@@ -205,7 +205,7 @@ private struct TransactionApiOperation {
     }
     
     enum GetTransactions: RequestOptions {
-        var query: [String : Encodable]? {
+        var query: Parameter? {
             return nil
         }
         

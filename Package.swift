@@ -16,9 +16,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/attaswift/BigInt.git", from: "5.3.0"),
-        .package(url: "https://github.com/apple/swift-openapi-urlsession.git", from: "1.0.1"),
-        .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.4.0"),
-        .package(url: "https://github.com/apple/swift-http-types.git", from: "1.1.0"),
         .package(url: "https://github.com/21-DOT-DEV/swift-secp256k1.git", exact: "0.10.0"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.8.2"),
         .package(url: "https://github.com/pebble8888/ed25519swift.git", from: "1.2.7")
@@ -29,8 +26,6 @@ let package = Package(
             name: "Aptos",
             dependencies: [
                 .product(name: "CryptoSwift", package: "cryptoswift"),
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "HTTPTypes", package: "swift-http-types"),
                 "Clients",
                 "Utils",
                 "Types",
@@ -51,10 +46,7 @@ let package = Package(
         ),
         .target(
             name: "Clients",
-            dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession")
-            ]
+            dependencies: []
         ),
         .target(
             name: "BCS",
@@ -65,7 +57,6 @@ let package = Package(
         .target(
             name: "Types",
             dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 "BCS"
             ]
         ),
@@ -100,8 +91,7 @@ let package = Package(
         .target(
             name: "Utils",
             dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
-                .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession")
+                "Clients"
             ]
         ),
         // MARK: - TestTargets

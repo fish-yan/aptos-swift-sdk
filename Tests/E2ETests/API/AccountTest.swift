@@ -83,7 +83,7 @@ final class AccountTest: XCTestCase {
     }
 
     func testFetchAccountTransactions() async throws {
-        let config = AptosConfig(network: .init(apiEnv: .local));
+        let config = AptosConfig(network: .init(apiEnv: .devnet));
         let aptos = Aptos(aptosConfig: config)
         let senderAccount = Account.generate()
         let _ = try await aptos.faucet.fundAccount(

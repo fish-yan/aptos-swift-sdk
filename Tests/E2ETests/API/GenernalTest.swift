@@ -7,40 +7,39 @@ import Core
 import BCS
 import Transactions
 import Utils
-import OpenAPIRuntime
 import BigInt
 
 
 final class GenernalTest: XCTestCase {
 
     func testFetchLedgerInfo() async throws {
-        let aptos: Aptos = Aptos(aptosConfig: .localnet)
+        let aptos: Aptos = Aptos(aptosConfig: .devnet)
         let ledger = try await aptos.general.getLedgerInfo()
         XCTAssertEqual(ledger.chainId, 4)
     }
 
     func testFetchChainId() async throws {
-        let aptos: Aptos = Aptos(aptosConfig: .localnet)
+        let aptos: Aptos = Aptos(aptosConfig: .devnet)
         let chainId = try await aptos.general.getChainId()
         XCTAssertEqual(chainId, 4)
     }
 
     func testFetchBlockDataByBlockHeight() async throws {
-        let aptos: Aptos = Aptos(aptosConfig: .localnet)
+        let aptos: Aptos = Aptos(aptosConfig: .devnet)
         let blockHeight: UInt64 = 1
         let block = try await aptos.general.getBlockByHeight(blockHeight)
         XCTAssertEqual(block.blockHeight, "\(blockHeight)")
     }
 
     func testFetchBlockDataByBlockVersion() async throws {
-        let aptos: Aptos = Aptos(aptosConfig: .localnet)
+        let aptos: Aptos = Aptos(aptosConfig: .devnet)
         let blockVersion: UInt64 = 1
         let block = try await aptos.general.getBlockByVersion(blockVersion)
         XCTAssertEqual(block.blockHeight, "\(blockVersion)")
     }
 
     func testFetchTableItemData() async throws {
-        let aptos = Aptos(aptosConfig: .localnet)
+        let aptos = Aptos(aptosConfig: .devnet)
 
         struct Supply: Codable & Sendable {
             let supply: SupplyData
@@ -89,7 +88,7 @@ final class GenernalTest: XCTestCase {
     func testViewFunctions() async throws {
 
         // fetch view function data
-        let aptos = Aptos(aptosConfig: .localnet)
+        let aptos = Aptos(aptosConfig: .devnet)
         var payload = InputViewFunctionData(function: "0x1::chain_id::get")
         let chainIdValue = try await aptos.general.view(payload: payload)[0]
         XCTAssertEqual(chainIdValue as! Int, 4)

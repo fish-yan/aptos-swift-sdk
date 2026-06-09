@@ -1,8 +1,5 @@
 
 import Foundation
-import HTTPTypes
-import OpenAPIRuntime
-import OpenAPIURLSession
 
 public struct AptosApiError: Error {
     public let body: Body

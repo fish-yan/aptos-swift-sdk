@@ -1,7 +1,6 @@
 
 import Foundation
 import Clients
-import OpenAPIRuntime
 import APIs
 import Utils
 extension Aptos {

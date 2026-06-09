@@ -1,7 +1,5 @@
 import Foundation
-import HTTPTypes
 import Clients
-import OpenAPIRuntime
 
 public typealias Pagination = (offset: String, limit: Int)
 public protocol PagenationRequest {
@@ -12,8 +10,8 @@ public protocol PagenationRequest {
 extension ClientInterface {
 
     public func convertBodyToAptosError(
-        _ httpBody: HTTPBody?, 
-        resp: HTTPResponse, 
+        _ httpBody: HTTPBody?,
+        resp: HTTPResponse,
         request: any _RequestOptions
     ) async throws -> AptosApiError {
         let apiError = try await converter.getResponseBodyAsJSON(
@@ -53,7 +51,7 @@ extension ClientInterface {
     
     public func sendPaginateRequest<Body>(
         _ request: inout RequestOptions & PagenationRequest
-    ) async throws  -> AptosResponse<[Body]> where Body: Decodable {
+    ) async throws -> AptosResponse<[Body]> where Body: Decodable {
         var cursor: String?
         var query = request.query ?? [:]
         var result: [Body] = []
