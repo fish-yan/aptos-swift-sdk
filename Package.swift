@@ -16,21 +16,18 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/attaswift/BigInt.git", from: "5.3.0"),
-        .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "4.0.0"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession.git", from: "1.0.1"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.4.0"),
-        .package(url: "https://github.com/apple/swift-docc-plugin", "1.0.0" ..< "2.0.0"),
         .package(url: "https://github.com/apple/swift-http-types.git", from: "1.1.0"),
-        .package(url: "https://github.com/Electric-Coin-Company/MnemonicSwift.git", from: "2.2.4"),
-        .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", from: "0.17.0"),
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.8.2")
+        .package(url: "https://github.com/21-DOT-DEV/swift-secp256k1.git", exact: "0.10.0"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.8.2"),
+        .package(url: "https://github.com/pebble8888/ed25519swift.git", from: "1.2.7")
     ],
     targets: [
         // MARK: - Targets
         .target(
             name: "Aptos",
             dependencies: [
-                .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "CryptoSwift", package: "cryptoswift"),
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "HTTPTypes", package: "swift-http-types"),
@@ -75,10 +72,9 @@ let package = Package(
         .target(
             name: "Core",
             dependencies: [
-                .product(name: "Crypto", package: "swift-crypto"),
-                .product(name: "MnemonicSwift", package: "MnemonicSwift"),
-                .product(name: "secp256k1", package: "secp256k1.swift"),
+                .product(name: "secp256k1", package: "swift-secp256k1"),
                 .product(name: "CryptoSwift", package: "cryptoswift"),
+                .product(name: "ed25519swift", package: "ed25519swift"),
                 "Types",
                 "BCS",
                 "BIP32"
@@ -97,8 +93,8 @@ let package = Package(
         .target(
             name: "BIP32",
             dependencies: [
-                .product(name: "Crypto", package: "swift-crypto"),
-                .product(name: "secp256k1", package: "secp256k1.swift")
+                .product(name: "CryptoSwift", package: "cryptoswift"),
+                .product(name: "secp256k1", package: "swift-secp256k1")
             ]
         ),
         .target(

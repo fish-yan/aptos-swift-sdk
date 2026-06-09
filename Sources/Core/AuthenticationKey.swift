@@ -2,7 +2,6 @@
 import Foundation
 import Types 
 import BCS
-import Crypto
 import CryptoSwift
 
 public enum AuthenticationKeyError: Error {

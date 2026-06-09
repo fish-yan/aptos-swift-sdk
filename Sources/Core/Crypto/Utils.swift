@@ -1,7 +1,6 @@
 import Foundation
 import Types
-import Crypto
-import MnemonicSwift
+import CryptoSwift
 import secp256k1
 
 typealias DerivedKeys = (key: [UInt8], chainCode: [UInt8])
@@ -22,10 +21,12 @@ func CKDPriv(keys: DerivedKeys, index: UInt32) -> DerivedKeys {
 }
 
 func deriveKey(_ hashSeed: Data, _ data: Data) -> DerivedKeys {
-    // Generate HMAC-SHA512 digest
-    var hmac = Crypto.HMAC<SHA512>(key: SymmetricKey(data: hashSeed))
-    hmac.update(data: data)    
-    let digest = Data(hmac.finalize())
+    let digest: [UInt8]
+    do {
+        digest = try CryptoSwift.HMAC(key: Array(hashSeed), variant: .sha2(.sha512)).authenticate(Array(data))
+    } catch {
+        fatalError("Failed to generate HMAC-SHA512 digest")
+    }
     let key = digest.prefix(32)
     let chainCode = digest.suffix(32)
     return (key: Array(key), chainCode: Array(chainCode))
@@ -52,24 +53,12 @@ extension HexInput {
     }
 }
 
-
-extension Curve25519 {
-    static func verify(signature: [UInt8], message: [UInt8], publicKey: [UInt8]) -> Bool {
-        do {
-            let edPublicKey = try Curve25519.Signing.PublicKey(rawRepresentation: publicKey)
-            return edPublicKey.isValidSignature(signature, for: message)
-        } catch {
-            return false
-        }
-    }
-}
-
 extension secp256k1 {
     static func verify(signature: [UInt8], data: [UInt8], publicKey: [UInt8]) -> Bool {
         do {
-            let p256PublicKey = try secp256k1.Signing.PublicKey(dataRepresentation: publicKey, format: .uncompressed)
+            let p256PublicKey = try secp256k1.Signing.PublicKey(rawRepresentation: publicKey, format: .uncompressed)
             let signature = try secp256k1.Signing.ECDSASignature(compactRepresentation: signature)
-            return p256PublicKey.isValidSignature(signature, for: HashDigest(data))
+            return p256PublicKey.ecdsa.isValidSignature(signature, for: HashDigest(data))
         } catch {
             return false
         }
@@ -106,8 +95,22 @@ extension String {
             .components(separatedBy: .whitespacesAndNewlines)
             .map { $0.lowercased() }
             .joined(separator: " ")
-        return try Mnemonic.deterministicSeedBytes(from: normalizedMnemonic)
+        guard let password = normalizedMnemonic.data(using: .utf8),
+              let salt = "mnemonic".data(using: .utf8) else {
+            throw MnemonicSeedError.invalidInput
+        }
+        return try PKCS5.PBKDF2(
+            password: Array(password),
+            salt: Array(salt),
+            iterations: 2_048,
+            keyLength: 64,
+            variant: .sha2(.sha512)
+        ).calculate()
     }
+}
+
+enum MnemonicSeedError: Error {
+    case invalidInput
 }
 
 extension String {

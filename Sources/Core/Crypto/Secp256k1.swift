@@ -4,7 +4,6 @@ import Types
 import secp256k1
 import BIP32
 import CryptoSwift
-import Crypto
 
 public struct Secp256k1PublicKey: PublicKey {
     
@@ -55,7 +54,7 @@ public struct Secp256k1PrivateKey: PrivateKey {
 
     public static func generate() -> Secp256k1PrivateKey {
         let privateKey = try! secp256k1.Signing.PrivateKey(format: .uncompressed)
-        return try! Secp256k1PrivateKey(privateKey.dataRepresentation)
+        return try! Secp256k1PrivateKey(privateKey.rawRepresentation)
     }
     
     public static func fromDerivationPath(path: String, mnemonic: String) throws -> Secp256k1PrivateKey {
@@ -72,16 +71,16 @@ public struct Secp256k1PrivateKey: PrivateKey {
 
     public func publicKey() throws -> any PublicKey {
         let privateKeyBytes = key.toUInt8Array()
-        let privateKey = try secp256k1.Signing.PrivateKey(dataRepresentation: privateKeyBytes, format: .uncompressed)
-        return try Secp256k1PublicKey(privateKey.publicKey.dataRepresentation)
+        let privateKey = try secp256k1.Signing.PrivateKey(rawRepresentation: privateKeyBytes, format: .uncompressed)
+        return try Secp256k1PublicKey(privateKey.publicKey.rawRepresentation)
     }
 
     public func sign(message: HexInput) throws -> any Signature {
         let messageToSign = message.convertSigningMessage()
         let messageBytes = try Hex.fromHexInput(messageToSign).toUInt8Array()
-        let privaeKey = try secp256k1.Signing.PrivateKey(dataRepresentation: toUInt8Array())
+        let privateKey = try secp256k1.Signing.PrivateKey(rawRepresentation: toUInt8Array())
         let sha3MessageBytes = CryptoSwift.Digest.sha3(messageBytes, variant: .sha256)
-        let  signature = try privaeKey.signature(for: HashDigest(sha3MessageBytes))
+        let  signature = try privateKey.ecdsa.signature(for: HashDigest(sha3MessageBytes))
         return try Secp256k1Signature(signature.compactRepresentation)
     }
 

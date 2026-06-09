@@ -1,7 +1,6 @@
 
 
 import Foundation
-import Crypto
 import secp256k1
 
 public struct HDPublicKey {

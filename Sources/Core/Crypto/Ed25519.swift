@@ -1,7 +1,7 @@
 import Foundation
 import BCS
 import Types
-import Crypto
+import ed25519swift
 
 /// L is the value that greater than or equal to will produce a non-canonical signature, and must be rejected
 private let L = [
@@ -49,7 +49,7 @@ public struct Ed25519PublicKey: AccountPublicKey {
 		if !signature.isCanonicalSignature() {
 			return false
 		}
-		return Curve25519.verify(signature: signatureBytes, message: messageBytes, publicKey: publicKeyBytes)
+		return Ed25519.verify(signature: signatureBytes, message: messageBytes, publicKey: publicKeyBytes)
     }
 
 	/// Get the authentication key for this public key.
@@ -88,8 +88,8 @@ public struct Ed25519PrivateKey: PrivateKey {
 	/// Generate a new random private key.
 	/// - Returns: Ed25519PrivateKey
 	public static func generate() -> Ed25519PrivateKey {
-		let keyPar = Curve25519.Signing.PrivateKey()
-		return try! Ed25519PrivateKey(keyPar.rawRepresentation)
+		let keyPair = Ed25519.generateKeyPair()
+		return try! Ed25519PrivateKey(keyPair.secretKey)
 	}
 
 	public static func fromDerivationPath(path: String, mnemonic: String) throws -> Ed25519PrivateKey {
@@ -115,8 +115,8 @@ public struct Ed25519PrivateKey: PrivateKey {
 	}
 
 	public func publicKey() throws -> any PublicKey {
-		let privateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: toUInt8Array())
-		return try Ed25519PublicKey(privateKey.publicKey.rawRepresentation)
+		let publicKey = Ed25519.calcPublicKey(secretKey: toUInt8Array())
+		return try Ed25519PublicKey(publicKey)
 	}
 
 	/// Sign the given message with the private key.
@@ -124,15 +124,11 @@ public struct Ed25519PrivateKey: PrivateKey {
 	/// - Parameters:
 	///   - message: The message to sign.
 	///
-	/// - Returns: The signature for the message. the implementation of
-	/// `Curve25519.Signing.PrivateKey` employs randomization to generate a
-	/// different signature on every call, even for the same message and key, to
-	/// guard against side-channel attacks.
+	/// - Returns: The signature for the message.
 	public func sign(message: HexInput) throws -> any Signature {
-		let signingKey = try Curve25519.Signing.PrivateKey(rawRepresentation: signingKey.toUInt8Array())
 		let messageToSign = message.convertSigningMessage()
 		let messageBytes = try Hex.fromHexInput(messageToSign).toUInt8Array()
-		let signatureBytes = try signingKey.signature(for: messageBytes)
+		let signatureBytes = Ed25519.sign(message: messageBytes, secretKey: signingKey.toUInt8Array())
 		return try Ed25519Signature(signatureBytes)
 	}
 

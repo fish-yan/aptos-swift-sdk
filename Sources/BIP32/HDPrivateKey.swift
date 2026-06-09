@@ -1,8 +1,7 @@
 
 import Foundation
-import Crypto
 import secp256k1
-import CryptoKit
+import CryptoSwift
 public struct HDPrivateKey {
     public let network: Network
     public let depth: UInt8
@@ -22,7 +21,7 @@ public struct HDPrivateKey {
     }
 
     public init(seed: Data, network: Network) {
-        let hmac = HMAC<SHA512>.authenticationCode(for: seed, using: SymmetricKey(data: "Bitcoin seed".data(using: .ascii)!))
+        let hmac = hmacSHA512(seed, key: Data("Bitcoin seed".utf8))
         let privateKey = hmac.prefix(32)
         let chainCode = hmac.suffix(32)
         self.init(privateKey: Data(privateKey), chainCode: Data(chainCode), network: network)
@@ -42,7 +41,7 @@ public struct HDPrivateKey {
     }
 
     private func computePublicKeyData() throws -> Data {
-        return try secp256k1.Signing.PrivateKey(dataRepresentation: raw, format: .compressed).publicKey.dataRepresentation
+        return try secp256k1.Signing.PrivateKey(rawRepresentation: raw, format: .compressed).publicKey.rawRepresentation
     }
 
     public func derived(at index: UInt32, hardened: Bool = false) throws -> HDPrivateKey {
@@ -70,12 +69,11 @@ struct _HDKey {
     let childIndex: UInt32
 
     private func hmacsha512(_ data: Data, key: Data) -> Data {
-        let hmac = HMAC<SHA512>.authenticationCode(for: data, using: SymmetricKey(data: key))
-        return Data(hmac)
+        hmacSHA512(data, key: key)
     }
 
     private func sha256ripemd160(_ data: Data) -> Data {
-        let sha256Hash = SHA256.hash(data: publicKey)
+        let sha256Hash = CryptoSwift.Digest.sha256(Array(data))
 
         var ripemd160Hash = RIPEMD160()
         ripemd160Hash.update(data: Data(sha256Hash))
@@ -133,5 +131,14 @@ struct _HDKey {
 		}
 	    let fingerPrint: UInt32 = sha256ripemd160(publicKey).to(type: UInt32.self)
 		return _HDKey(privateKey: result, publicKey: result, chainCode: Data(derivedChainCode), depth: self.depth + 1, fingerprint: fingerPrint, childIndex: childIndex)
+    }
+}
+
+private func hmacSHA512(_ data: Data, key: Data) -> Data {
+    do {
+        let digest = try CryptoSwift.HMAC(key: Array(key), variant: .sha2(.sha512)).authenticate(Array(data))
+        return Data(digest)
+    } catch {
+        fatalError("Failed to generate HMAC-SHA512 digest")
     }
 }

@@ -58,8 +58,8 @@ extension UInt8: AnyNumber {}
 extension UInt16: AnyNumber {}
 extension UInt32: AnyNumber {}
 extension UInt64: AnyNumber {}
-extension BigUInt: @unchecked Sendable, AnyNumber {}
-extension BigInt: @unchecked Sendable, AnyNumber {}
+extension BigUInt: @unchecked @retroactive Sendable, AnyNumber {}
+extension BigInt: @unchecked @retroactive Sendable, AnyNumber {}
 
 // MARK: - Account & Transaction
 

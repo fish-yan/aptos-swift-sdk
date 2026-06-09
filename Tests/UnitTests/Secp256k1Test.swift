@@ -12,7 +12,7 @@ class Secp256k1PublicKeyTest: XCTestCase {
         let publicKey = try Secp256k1PublicKey(Secp256k1.publicKey)
         XCTAssertEqual(publicKey.toString(), Secp256k1.publicKey)
         // Create from Uint8Array
-        let publicData = try secp256k1.Signing.PrivateKey(format: .uncompressed).publicKey.dataRepresentation
+        let publicData = try secp256k1.Signing.PrivateKey(format: .uncompressed).publicKey.rawRepresentation
         let publicKey2 = try Secp256k1PublicKey(publicData)
         XCTAssertEqual(publicKey2.toUInt8Array(), Array(publicData))
     }
@@ -71,7 +71,7 @@ class Secp256k1PrivateKeyTest: XCTestCase {
     let privateKey2 = try Secp256k1PrivateKey(hexUint8Array)
     XCTAssertEqual(privateKey2.toString(), try Hex.fromHexInput(hexUint8Array).toString())
 
-    let privateData = try secp256k1.Signing.PrivateKey(format: .uncompressed).dataRepresentation
+    let privateData = try secp256k1.Signing.PrivateKey(format: .uncompressed).rawRepresentation
     let privateKey3 = try Secp256k1PrivateKey(privateData)
     XCTAssertEqual(privateKey3.toUInt8Array(), Array(privateData))
   }
