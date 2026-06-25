@@ -185,6 +185,50 @@ public extension InputEntryFunctionData {
     static let aptosCoinType = APTOS_COIN
     static let fungibleAssetMetadataType = "0x1::fungible_asset::Metadata"
     static let fungibleStoreType = "0x1::fungible_asset::FungibleStore"
+    static let defaultDigitalAssetType = "0x4::token::Token"
+
+    struct DigitalAssetCollectionOptions {
+        public var maxSupply: UInt64
+        public var mutableDescription: Bool
+        public var mutableRoyalty: Bool
+        public var mutableURI: Bool
+        public var mutableTokenDescription: Bool
+        public var mutableTokenName: Bool
+        public var mutableTokenProperties: Bool
+        public var mutableTokenURI: Bool
+        public var tokensBurnableByCreator: Bool
+        public var tokensFreezableByCreator: Bool
+        public var royaltyNumerator: UInt64
+        public var royaltyDenominator: UInt64
+
+        public init(
+            maxSupply: UInt64 = UInt64.max,
+            mutableDescription: Bool = true,
+            mutableRoyalty: Bool = true,
+            mutableURI: Bool = true,
+            mutableTokenDescription: Bool = true,
+            mutableTokenName: Bool = true,
+            mutableTokenProperties: Bool = true,
+            mutableTokenURI: Bool = true,
+            tokensBurnableByCreator: Bool = true,
+            tokensFreezableByCreator: Bool = true,
+            royaltyNumerator: UInt64 = 0,
+            royaltyDenominator: UInt64 = 1
+        ) {
+            self.maxSupply = maxSupply
+            self.mutableDescription = mutableDescription
+            self.mutableRoyalty = mutableRoyalty
+            self.mutableURI = mutableURI
+            self.mutableTokenDescription = mutableTokenDescription
+            self.mutableTokenName = mutableTokenName
+            self.mutableTokenProperties = mutableTokenProperties
+            self.mutableTokenURI = mutableTokenURI
+            self.tokensBurnableByCreator = tokensBurnableByCreator
+            self.tokensFreezableByCreator = tokensFreezableByCreator
+            self.royaltyNumerator = royaltyNumerator
+            self.royaltyDenominator = royaltyDenominator
+        }
+    }
 
     static var coinTransferABI: EntryFunctionABI {
         .init(
@@ -200,6 +244,63 @@ public extension InputEntryFunctionData {
                 .Struct(.object(.Generic(0))),
                 .Address,
                 .U64
+            ]
+        )
+    }
+
+    static var createCollectionABI: EntryFunctionABI {
+        .init(
+            typeParameters: [],
+            parameters: [
+                .Struct(.string),
+                .U64,
+                .Struct(.string),
+                .Struct(.string),
+                .Bool,
+                .Bool,
+                .Bool,
+                .Bool,
+                .Bool,
+                .Bool,
+                .Bool,
+                .Bool,
+                .Bool,
+                .U64,
+                .U64
+            ]
+        )
+    }
+
+    static var mintDigitalAssetABI: EntryFunctionABI {
+        .init(
+            typeParameters: [],
+            parameters: [
+                .Struct(.string),
+                .Struct(.string),
+                .Struct(.string),
+                .Struct(.string),
+                .Vector(.Struct(.string)),
+                .Vector(.Struct(.string)),
+                .Vector(.Vector(.U8))
+            ]
+        )
+    }
+
+    static var digitalAssetObjectABI: EntryFunctionABI {
+        .init(
+            typeParameters: [.init(constraints: [.key])],
+            parameters: [
+                .Struct(.object(.Generic(0)))
+            ]
+        )
+    }
+
+    static var transferDigitalAssetABI: EntryFunctionABI {
+        .init(
+            typeParameters: [.init(constraints: [.key])],
+            parameters: [
+                .Struct(.object(.Generic(0))),
+                .Address
             ]
         )
     }
@@ -240,6 +341,108 @@ public extension InputEntryFunctionData {
             typeArguments: [fungibleStoreType],
             functionArguments: [fromStore, toStore, amount],
             abi: fungibleAssetTransferABI
+        )
+    }
+
+    static func createCollection(
+        description: String,
+        name: String,
+        uri: String,
+        options: DigitalAssetCollectionOptions = .init()
+    ) -> InputEntryFunctionData {
+        .init(
+            function: "0x4::aptos_token::create_collection",
+            functionArguments: [
+                description,
+                options.maxSupply,
+                name,
+                uri,
+                options.mutableDescription,
+                options.mutableRoyalty,
+                options.mutableURI,
+                options.mutableTokenDescription,
+                options.mutableTokenName,
+                options.mutableTokenProperties,
+                options.mutableTokenURI,
+                options.tokensBurnableByCreator,
+                options.tokensFreezableByCreator,
+                options.royaltyNumerator,
+                options.royaltyDenominator
+            ],
+            abi: createCollectionABI
+        )
+    }
+
+    static func mintDigitalAsset(
+        collection: String,
+        description: String,
+        name: String,
+        uri: String,
+        propertyKeys: [String] = [],
+        propertyTypes: [String] = [],
+        propertyValues: [[UInt8]] = []
+    ) -> InputEntryFunctionData {
+        .init(
+            function: "0x4::aptos_token::mint",
+            functionArguments: [
+                collection,
+                description,
+                name,
+                uri,
+                MoveVector.String(propertyKeys),
+                MoveVector.String(propertyTypes),
+                MoveVector<MoveVector<U8>>(value: propertyValues.map { MoveVector.U8($0) })
+            ],
+            abi: mintDigitalAssetABI
+        )
+    }
+
+    static func transferDigitalAsset(
+        digitalAssetAddress: AccountAddressInput,
+        recipient: AccountAddressInput,
+        digitalAssetType: TypeArgument = defaultDigitalAssetType
+    ) -> InputEntryFunctionData {
+        .init(
+            function: "0x1::object::transfer",
+            typeArguments: [digitalAssetType],
+            functionArguments: [digitalAssetAddress, recipient],
+            abi: transferDigitalAssetABI
+        )
+    }
+
+    static func burnDigitalAsset(
+        digitalAssetAddress: AccountAddressInput,
+        digitalAssetType: TypeArgument = defaultDigitalAssetType
+    ) -> InputEntryFunctionData {
+        .init(
+            function: "0x4::aptos_token::burn",
+            typeArguments: [digitalAssetType],
+            functionArguments: [digitalAssetAddress],
+            abi: digitalAssetObjectABI
+        )
+    }
+
+    static func freezeDigitalAssetTransfer(
+        digitalAssetAddress: AccountAddressInput,
+        digitalAssetType: TypeArgument = defaultDigitalAssetType
+    ) -> InputEntryFunctionData {
+        .init(
+            function: "0x4::aptos_token::freeze_transfer",
+            typeArguments: [digitalAssetType],
+            functionArguments: [digitalAssetAddress],
+            abi: digitalAssetObjectABI
+        )
+    }
+
+    static func unfreezeDigitalAssetTransfer(
+        digitalAssetAddress: AccountAddressInput,
+        digitalAssetType: TypeArgument = defaultDigitalAssetType
+    ) -> InputEntryFunctionData {
+        .init(
+            function: "0x4::aptos_token::unfreeze_transfer",
+            typeArguments: [digitalAssetType],
+            functionArguments: [digitalAssetAddress],
+            abi: digitalAssetObjectABI
         )
     }
 }

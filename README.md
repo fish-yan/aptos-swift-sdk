@@ -114,6 +114,35 @@ let contractTxn = try await aptos.transaction.entryFunction(
 )
 ```
 
+### Creating and trading digital assets
+For Aptos Digital Asset NFTs, the SDK mirrors the official TypeScript SDK helpers for collection creation, minting, object transfer, burn, freeze, and unfreeze transactions.
+
+```swift
+// Create a Digital Asset collection.
+let collectionTxn = try await aptos.transaction.createCollectionTransaction(
+    sender: senderAccount.accountAddress,
+    description: "Collection description",
+    name: "Collection name",
+    uri: "https://example.com/collection.json"
+)
+
+// Mint an NFT into the collection.
+let mintTxn = try await aptos.transaction.mintDigitalAssetTransaction(
+    sender: senderAccount.accountAddress,
+    collection: "Collection name",
+    description: "Token description",
+    name: "Token name",
+    uri: "https://example.com/token.json"
+)
+
+// Transfer the NFT object to another account.
+let transferTxn = try await aptos.transaction.transferDigitalAssetTransaction(
+    sender: senderAccount.accountAddress,
+    digitalAssetAddress: "0x...",
+    recipient: bob.accountAddress
+)
+```
+
 ### Testing
 To run the SDK tests, simply run from the root of this repository:
 

@@ -84,4 +84,128 @@ extension Aptos.Transaction {
             withFeePayer: withFeePayer
         )
     }
+
+    public func createCollectionTransaction(
+        sender: AccountAddressInput,
+        description: String,
+        name: String,
+        uri: String,
+        collectionOptions: InputEntryFunctionData.DigitalAssetCollectionOptions = .init(),
+        options: InputGenerateTransactionOptions? = nil,
+        withFeePayer: Bool? = nil
+    ) async throws -> SimpleTransaction {
+        try await build.simple(
+            sender: sender,
+            data: .createCollection(
+                description: description,
+                name: name,
+                uri: uri,
+                options: collectionOptions
+            ),
+            options: options,
+            withFeePayer: withFeePayer
+        )
+    }
+
+    public func mintDigitalAssetTransaction(
+        sender: AccountAddressInput,
+        collection: String,
+        description: String,
+        name: String,
+        uri: String,
+        propertyKeys: [String] = [],
+        propertyTypes: [String] = [],
+        propertyValues: [[UInt8]] = [],
+        options: InputGenerateTransactionOptions? = nil,
+        withFeePayer: Bool? = nil
+    ) async throws -> SimpleTransaction {
+        try await build.simple(
+            sender: sender,
+            data: .mintDigitalAsset(
+                collection: collection,
+                description: description,
+                name: name,
+                uri: uri,
+                propertyKeys: propertyKeys,
+                propertyTypes: propertyTypes,
+                propertyValues: propertyValues
+            ),
+            options: options,
+            withFeePayer: withFeePayer
+        )
+    }
+
+    public func transferDigitalAssetTransaction(
+        sender: AccountAddressInput,
+        digitalAssetAddress: AccountAddressInput,
+        recipient: AccountAddressInput,
+        digitalAssetType: TypeArgument = InputEntryFunctionData.defaultDigitalAssetType,
+        options: InputGenerateTransactionOptions? = nil,
+        withFeePayer: Bool? = nil
+    ) async throws -> SimpleTransaction {
+        try await build.simple(
+            sender: sender,
+            data: .transferDigitalAsset(
+                digitalAssetAddress: digitalAssetAddress,
+                recipient: recipient,
+                digitalAssetType: digitalAssetType
+            ),
+            options: options,
+            withFeePayer: withFeePayer
+        )
+    }
+
+    public func burnDigitalAssetTransaction(
+        sender: AccountAddressInput,
+        digitalAssetAddress: AccountAddressInput,
+        digitalAssetType: TypeArgument = InputEntryFunctionData.defaultDigitalAssetType,
+        options: InputGenerateTransactionOptions? = nil,
+        withFeePayer: Bool? = nil
+    ) async throws -> SimpleTransaction {
+        try await build.simple(
+            sender: sender,
+            data: .burnDigitalAsset(
+                digitalAssetAddress: digitalAssetAddress,
+                digitalAssetType: digitalAssetType
+            ),
+            options: options,
+            withFeePayer: withFeePayer
+        )
+    }
+
+    public func freezeDigitalAssetTransferTransaction(
+        sender: AccountAddressInput,
+        digitalAssetAddress: AccountAddressInput,
+        digitalAssetType: TypeArgument = InputEntryFunctionData.defaultDigitalAssetType,
+        options: InputGenerateTransactionOptions? = nil,
+        withFeePayer: Bool? = nil
+    ) async throws -> SimpleTransaction {
+        try await build.simple(
+            sender: sender,
+            data: .freezeDigitalAssetTransfer(
+                digitalAssetAddress: digitalAssetAddress,
+                digitalAssetType: digitalAssetType
+            ),
+            options: options,
+            withFeePayer: withFeePayer
+        )
+    }
+
+    public func unfreezeDigitalAssetTransferTransaction(
+        sender: AccountAddressInput,
+        digitalAssetAddress: AccountAddressInput,
+        digitalAssetType: TypeArgument = InputEntryFunctionData.defaultDigitalAssetType,
+        options: InputGenerateTransactionOptions? = nil,
+        withFeePayer: Bool? = nil
+    ) async throws -> SimpleTransaction {
+        try await build.simple(
+            sender: sender,
+            data: .unfreezeDigitalAssetTransfer(
+                digitalAssetAddress: digitalAssetAddress,
+                digitalAssetType: digitalAssetType
+            ),
+            options: options,
+            withFeePayer: withFeePayer
+        )
+    }
 }
