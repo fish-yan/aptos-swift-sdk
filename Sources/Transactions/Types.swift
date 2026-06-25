@@ -181,6 +181,69 @@ public struct InputEntryFunctionData {
     }
 }
 
+public extension InputEntryFunctionData {
+    static let aptosCoinType = APTOS_COIN
+    static let fungibleAssetMetadataType = "0x1::fungible_asset::Metadata"
+    static let fungibleStoreType = "0x1::fungible_asset::FungibleStore"
+
+    static var coinTransferABI: EntryFunctionABI {
+        .init(
+            typeParameters: [.init(constraints: [])],
+            parameters: [.Address, .U64]
+        )
+    }
+
+    static var fungibleAssetTransferABI: EntryFunctionABI {
+        .init(
+            typeParameters: [.init(constraints: [])],
+            parameters: [
+                .Struct(.object(.Generic(0))),
+                .Address,
+                .U64
+            ]
+        )
+    }
+
+    static func transferCoin(
+        recipient: AccountAddressInput,
+        amount: UInt64,
+        coinType: TypeArgument = aptosCoinType
+    ) -> InputEntryFunctionData {
+        .init(
+            function: "0x1::aptos_account::transfer_coins",
+            typeArguments: [coinType],
+            functionArguments: [recipient, amount],
+            abi: coinTransferABI
+        )
+    }
+
+    static func transferFungibleAsset(
+        metadataAddress: AccountAddressInput,
+        recipient: AccountAddressInput,
+        amount: UInt64
+    ) -> InputEntryFunctionData {
+        .init(
+            function: "0x1::primary_fungible_store::transfer",
+            typeArguments: [fungibleAssetMetadataType],
+            functionArguments: [metadataAddress, recipient, amount],
+            abi: fungibleAssetTransferABI
+        )
+    }
+
+    static func transferFungibleAssetBetweenStores(
+        fromStore: AccountAddressInput,
+        toStore: AccountAddressInput,
+        amount: UInt64
+    ) -> InputEntryFunctionData {
+        .init(
+            function: "0x1::dispatchable_fungible_asset::transfer",
+            typeArguments: [fungibleStoreType],
+            functionArguments: [fromStore, toStore, amount],
+            abi: fungibleAssetTransferABI
+        )
+    }
+}
+
 public struct InputScriptData {
     public var bytecode: HexInput
     public var typeArguments: [TypeTag]?

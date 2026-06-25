@@ -87,6 +87,33 @@ let transaction = try await aptos.transaction.getTransactionByHash(txn.hash)
 
 ```
 
+### Transferring coins and fungible assets
+The SDK also provides TypeScript SDK-style helpers for standard Coin and Fungible Asset transfers.
+
+```swift
+// Transfer APT, or pass coinType for another legacy Coin type.
+let coinTxn = try await aptos.transaction.transferCoinTransaction(
+    sender: senderAccount.accountAddress,
+    recipient: bob.accountAddress,
+    amount: 100
+)
+
+// Transfer a Fungible Asset from the sender's primary store.
+let faTxn = try await aptos.transaction.transferFungibleAsset(
+    sender: senderAccount.accountAddress,
+    fungibleAssetMetadataAddress: "0x...",
+    recipient: bob.accountAddress,
+    amount: 100
+)
+
+// Call any entry function directly for custom contracts.
+let contractTxn = try await aptos.transaction.entryFunction(
+    sender: senderAccount.accountAddress,
+    function: "0x1::aptos_account::transfer",
+    functionArguments: [bob.accountAddress, 100]
+)
+```
+
 ### Testing
 To run the SDK tests, simply run from the root of this repository:
 

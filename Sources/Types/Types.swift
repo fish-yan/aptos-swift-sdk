@@ -238,6 +238,10 @@ public enum MoveAbility: String, Codable, Hashable, Sendable {
 
 public struct MoveFunctionGenericTypeParam: Codable, Hashable, Sendable {
     public var constraints: [MoveAbility]
+
+    public init(constraints: [MoveAbility]) {
+        self.constraints = constraints
+    }
     
     public enum CodingKeys: String, CodingKey {
         case constraints
@@ -1571,6 +1575,5 @@ public struct TableItemRequest: Sendable {
         ]
     }
 }
-
 
 
