@@ -35,7 +35,7 @@ extension Aptos.Transaction {
     ) async throws -> SimpleTransaction {
         try await build.simple(
             sender: sender,
-            data: .transferCoin(
+            data: InputEntryFunctionData.transferCoin(
                 recipient: recipient,
                 amount: amount,
                 coinType: coinType
@@ -55,7 +55,7 @@ extension Aptos.Transaction {
     ) async throws -> SimpleTransaction {
         try await build.simple(
             sender: sender,
-            data: .transferFungibleAsset(
+            data: InputEntryFunctionData.transferFungibleAsset(
                 metadataAddress: fungibleAssetMetadataAddress,
                 recipient: recipient,
                 amount: amount
@@ -75,11 +75,49 @@ extension Aptos.Transaction {
     ) async throws -> SimpleTransaction {
         try await build.simple(
             sender: sender,
-            data: .transferFungibleAssetBetweenStores(
+            data: InputEntryFunctionData.transferFungibleAssetBetweenStores(
                 fromStore: fromStore,
                 toStore: toStore,
                 amount: amount
             ),
+            options: options,
+            withFeePayer: withFeePayer
+        )
+    }
+
+    public func transferTokenTransaction(
+        sender: AccountAddressInput,
+        token: FungibleTokenIdentifier,
+        recipient: AccountAddressInput,
+        amount: UInt64,
+        options: InputGenerateTransactionOptions? = nil,
+        withFeePayer: Bool? = nil
+    ) async throws -> SimpleTransaction {
+        try await build.simple(
+            sender: sender,
+            data: InputEntryFunctionData.transferToken(
+                token: token,
+                recipient: recipient,
+                amount: amount
+            ),
+            options: options,
+            withFeePayer: withFeePayer
+        )
+    }
+
+    public func transferTokenTransaction(
+        sender: AccountAddressInput,
+        token: String,
+        recipient: AccountAddressInput,
+        amount: UInt64,
+        options: InputGenerateTransactionOptions? = nil,
+        withFeePayer: Bool? = nil
+    ) async throws -> SimpleTransaction {
+        try await transferTokenTransaction(
+            sender: sender,
+            token: FungibleTokenIdentifier(token),
+            recipient: recipient,
+            amount: amount,
             options: options,
             withFeePayer: withFeePayer
         )
@@ -96,7 +134,7 @@ extension Aptos.Transaction {
     ) async throws -> SimpleTransaction {
         try await build.simple(
             sender: sender,
-            data: .createCollection(
+            data: InputEntryFunctionData.createCollection(
                 description: description,
                 name: name,
                 uri: uri,
@@ -121,7 +159,7 @@ extension Aptos.Transaction {
     ) async throws -> SimpleTransaction {
         try await build.simple(
             sender: sender,
-            data: .mintDigitalAsset(
+            data: InputEntryFunctionData.mintDigitalAsset(
                 collection: collection,
                 description: description,
                 name: name,
@@ -145,7 +183,7 @@ extension Aptos.Transaction {
     ) async throws -> SimpleTransaction {
         try await build.simple(
             sender: sender,
-            data: .transferDigitalAsset(
+            data: InputEntryFunctionData.transferDigitalAsset(
                 digitalAssetAddress: digitalAssetAddress,
                 recipient: recipient,
                 digitalAssetType: digitalAssetType
@@ -164,7 +202,7 @@ extension Aptos.Transaction {
     ) async throws -> SimpleTransaction {
         try await build.simple(
             sender: sender,
-            data: .burnDigitalAsset(
+            data: InputEntryFunctionData.burnDigitalAsset(
                 digitalAssetAddress: digitalAssetAddress,
                 digitalAssetType: digitalAssetType
             ),
@@ -182,7 +220,7 @@ extension Aptos.Transaction {
     ) async throws -> SimpleTransaction {
         try await build.simple(
             sender: sender,
-            data: .freezeDigitalAssetTransfer(
+            data: InputEntryFunctionData.freezeDigitalAssetTransfer(
                 digitalAssetAddress: digitalAssetAddress,
                 digitalAssetType: digitalAssetType
             ),
@@ -200,7 +238,7 @@ extension Aptos.Transaction {
     ) async throws -> SimpleTransaction {
         try await build.simple(
             sender: sender,
-            data: .unfreezeDigitalAssetTransfer(
+            data: InputEntryFunctionData.unfreezeDigitalAssetTransfer(
                 digitalAssetAddress: digitalAssetAddress,
                 digitalAssetType: digitalAssetType
             ),

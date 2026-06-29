@@ -91,6 +91,15 @@ let transaction = try await aptos.transaction.getTransactionByHash(txn.hash)
 The SDK also provides TypeScript SDK-style helpers for standard Coin and Fungible Asset transfers.
 
 ```swift
+// Automatically dispatches to legacy Coin transfer when token contains "::",
+// otherwise treats token as a Fungible Asset metadata address.
+let tokenTxn = try await aptos.transaction.transferTokenTransaction(
+    sender: senderAccount.accountAddress,
+    token: "0x1::aptos_coin::AptosCoin",
+    recipient: bob.accountAddress,
+    amount: 100
+)
+
 // Transfer APT, or pass coinType for another legacy Coin type.
 let coinTxn = try await aptos.transaction.transferCoinTransaction(
     sender: senderAccount.accountAddress,

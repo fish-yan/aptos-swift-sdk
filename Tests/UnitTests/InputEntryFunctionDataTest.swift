@@ -58,6 +58,53 @@ final class InputEntryFunctionDataTest: XCTestCase {
         )
     }
 
+    func testFungibleTokenIdentifierDetectsCoinTypeStrings() {
+        XCTAssertEqual(
+            FungibleTokenIdentifier.standard(for: "0x1::aptos_coin::AptosCoin"),
+            .coin
+        )
+    }
+
+    func testFungibleTokenIdentifierDetectsFungibleAssetMetadataAddresses() {
+        XCTAssertEqual(
+            FungibleTokenIdentifier.standard(for: "0xface"),
+            .fungibleAsset
+        )
+    }
+
+    func testTransferTokenDataUsesCoinTransferForLegacyCoinType() {
+        let data = InputEntryFunctionData.transferToken(
+            token: "0x1::aptos_coin::AptosCoin",
+            recipient: "0xb0b",
+            amount: 100
+        )
+
+        XCTAssertEqual(data.function, "0x1::aptos_account::transfer_coins")
+        XCTAssertEqual(data.typeArguments?.first as? String, "0x1::aptos_coin::AptosCoin")
+        XCTAssertEqual(data.functionArguments.count, 2)
+        XCTAssertEqual(data.abi?.parameters, [.Address, .U64])
+    }
+
+    func testTransferTokenDataUsesFungibleAssetTransferForMetadataAddress() {
+        let data = InputEntryFunctionData.transferToken(
+            token: "0xface",
+            recipient: "0xb0b",
+            amount: 100
+        )
+
+        XCTAssertEqual(data.function, "0x1::primary_fungible_store::transfer")
+        XCTAssertEqual(data.typeArguments?.first as? String, InputEntryFunctionData.fungibleAssetMetadataType)
+        XCTAssertEqual(data.functionArguments.count, 3)
+        XCTAssertEqual(
+            data.abi?.parameters,
+            [
+                .Struct(.object(.Generic(0))),
+                .Address,
+                .U64
+            ]
+        )
+    }
+
     func testCreateCollectionDataMatchesDigitalAssetShape() {
         let data = InputEntryFunctionData.createCollection(
             description: "Collection description",

@@ -181,6 +181,33 @@ public struct InputEntryFunctionData {
     }
 }
 
+public enum FungibleTokenStandard: Equatable {
+    case coin
+    case fungibleAsset
+}
+
+public enum FungibleTokenIdentifier: ExpressibleByStringLiteral {
+    case coinType(TypeArgument)
+    case fungibleAssetMetadataAddress(AccountAddressInput)
+
+    public init(_ token: String) {
+        switch Self.standard(for: token) {
+        case .coin:
+            self = .coinType(token)
+        case .fungibleAsset:
+            self = .fungibleAssetMetadataAddress(token)
+        }
+    }
+
+    public init(stringLiteral value: String) {
+        self.init(value)
+    }
+
+    public static func standard(for token: String) -> FungibleTokenStandard {
+        token.trimmingCharacters(in: .whitespacesAndNewlines).contains("::") ? .coin : .fungibleAsset
+    }
+}
+
 public extension InputEntryFunctionData {
     static let aptosCoinType = APTOS_COIN
     static let fungibleAssetMetadataType = "0x1::fungible_asset::Metadata"
@@ -305,6 +332,13 @@ public extension InputEntryFunctionData {
         )
     }
 
+    private static func addressFunctionArgument(_ address: AccountAddressInput) -> FunctionArgumentTypes {
+        guard let argument = address as? FunctionArgumentTypes else {
+            preconditionFailure("Unsupported account address input type: \(type(of: address))")
+        }
+        return argument
+    }
+
     static func transferCoin(
         recipient: AccountAddressInput,
         amount: UInt64,
@@ -313,7 +347,7 @@ public extension InputEntryFunctionData {
         .init(
             function: "0x1::aptos_account::transfer_coins",
             typeArguments: [coinType],
-            functionArguments: [recipient, amount],
+            functionArguments: [addressFunctionArgument(recipient), amount],
             abi: coinTransferABI
         )
     }
@@ -326,7 +360,11 @@ public extension InputEntryFunctionData {
         .init(
             function: "0x1::primary_fungible_store::transfer",
             typeArguments: [fungibleAssetMetadataType],
-            functionArguments: [metadataAddress, recipient, amount],
+            functionArguments: [
+                addressFunctionArgument(metadataAddress),
+                addressFunctionArgument(recipient),
+                amount
+            ],
             abi: fungibleAssetTransferABI
         )
     }
@@ -339,8 +377,45 @@ public extension InputEntryFunctionData {
         .init(
             function: "0x1::dispatchable_fungible_asset::transfer",
             typeArguments: [fungibleStoreType],
-            functionArguments: [fromStore, toStore, amount],
+            functionArguments: [
+                addressFunctionArgument(fromStore),
+                addressFunctionArgument(toStore),
+                amount
+            ],
             abi: fungibleAssetTransferABI
+        )
+    }
+
+    static func transferToken(
+        token: FungibleTokenIdentifier,
+        recipient: AccountAddressInput,
+        amount: UInt64
+    ) -> InputEntryFunctionData {
+        switch token {
+        case .coinType(let coinType):
+            return transferCoin(
+                recipient: recipient,
+                amount: amount,
+                coinType: coinType
+            )
+        case .fungibleAssetMetadataAddress(let metadataAddress):
+            return transferFungibleAsset(
+                metadataAddress: metadataAddress,
+                recipient: recipient,
+                amount: amount
+            )
+        }
+    }
+
+    static func transferToken(
+        token: String,
+        recipient: AccountAddressInput,
+        amount: UInt64
+    ) -> InputEntryFunctionData {
+        transferToken(
+            token: FungibleTokenIdentifier(token),
+            recipient: recipient,
+            amount: amount
         )
     }
 
@@ -389,9 +464,9 @@ public extension InputEntryFunctionData {
                 description,
                 name,
                 uri,
-                MoveVector.String(propertyKeys),
-                MoveVector.String(propertyTypes),
-                MoveVector<MoveVector<U8>>(value: propertyValues.map { MoveVector.U8($0) })
+                MoveVector<MoveString>.String(propertyKeys),
+                MoveVector<MoveString>.String(propertyTypes),
+                MoveVector<MoveVector<U8>>(value: propertyValues.map { MoveVector<U8>.U8($0) })
             ],
             abi: mintDigitalAssetABI
         )
@@ -405,7 +480,10 @@ public extension InputEntryFunctionData {
         .init(
             function: "0x1::object::transfer",
             typeArguments: [digitalAssetType],
-            functionArguments: [digitalAssetAddress, recipient],
+            functionArguments: [
+                addressFunctionArgument(digitalAssetAddress),
+                addressFunctionArgument(recipient)
+            ],
             abi: transferDigitalAssetABI
         )
     }
@@ -417,7 +495,7 @@ public extension InputEntryFunctionData {
         .init(
             function: "0x4::aptos_token::burn",
             typeArguments: [digitalAssetType],
-            functionArguments: [digitalAssetAddress],
+            functionArguments: [addressFunctionArgument(digitalAssetAddress)],
             abi: digitalAssetObjectABI
         )
     }
@@ -429,7 +507,7 @@ public extension InputEntryFunctionData {
         .init(
             function: "0x4::aptos_token::freeze_transfer",
             typeArguments: [digitalAssetType],
-            functionArguments: [digitalAssetAddress],
+            functionArguments: [addressFunctionArgument(digitalAssetAddress)],
             abi: digitalAssetObjectABI
         )
     }
@@ -441,7 +519,7 @@ public extension InputEntryFunctionData {
         .init(
             function: "0x4::aptos_token::unfreeze_transfer",
             typeArguments: [digitalAssetType],
-            functionArguments: [digitalAssetAddress],
+            functionArguments: [addressFunctionArgument(digitalAssetAddress)],
             abi: digitalAssetObjectABI
         )
     }
